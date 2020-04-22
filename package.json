@@ -1,0 +1,16 @@
+{
+  "name": "CLORO-BOT",
+  "version": "1.0.0",
+  "description": "CLORO BOT",
+  "main": "main.js",
+  "author": "CLORO",
+  "dependencies": {
+    "booru": "^2.2.3",
+    "danbooru": "^2.0.3",
+    "discord.io": "https://github.com/woor/discord.io/tarball/gateway_v6",
+    "discord.js": "^12.2.0",
+    "lodash": "^4.17.15",
+    "underscore": "^1.10.2",
+    "winston": "^3.2.1"
+  }
+}

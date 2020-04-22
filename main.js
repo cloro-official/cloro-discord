@@ -122,15 +122,15 @@ bot.on('message', async function (user, userID, channelID, message, evt)
             case "help":
                 bot.sendMessage({
                     to: channelID,
-                    message: "**CLORO**\n**Prefix**: `" + Prefix + "` **[UNCHANGEABLE]**\nI am a bot that gives you randomized NSFW from the Booru kingdom.\n\n`danb [tags]` - danbooru.donmai.us [can only support 1 tag!]\n`gelb [tags]` - gelbooru.com\n`e621 [tags]` - e621.net\n`hypno [tags]` - hypnohub.net\n`konac [tags]` - konachan.com\n`yandere [tags]` - yande.re\n`r34 [tags]` - rule34.xxx\n`xbooru [tags]` - xbooru.com\n`loli [tags]` - lolibooru.moe\n`r34pa [tags]` - rule34.paheal.net\n`derp [tags]` - derpibooru.org\n`fur [tags]` - furry.booru.org\n`real [tags]` - realbooru.com\n`xbo [tags]` - xbooru"
+                    message: "**CLORO**\n**Prefix**: `" + Prefix + "` **[UNCHANGEABLE]**\nI am a bot that gives you randomized NSFW from the Booru kingdom.\n\n`danb [tags]` - danbooru.donmai.us [can only support 1 tag!]\n`gelb [tags]` - gelbooru.com\n`e621 [tags]` - e621.net\n`e926 [tags] - e926.net`\n`hypno [tags]` - hypnohub.net\n`konac [tags]` - konachan.com\n`yandere [tags]` - yande.re\n`r34 [tags]` - rule34.xxx\n`xbooru [tags]` - xbooru.com\n`loli [tags]` - lolibooru.moe\n`r34pa [tags]` - rule34.paheal.net\n`derp [tags]` - derpibooru.org\n`fur [tags]` - furry.booru.org\n`real [tags]` - realbooru.com\n`xbo [tags]` - xbooru"
 		        })
             break
-
+            
             // default
             default:
                 bot.sendMessage({
                     to: channelID,
-                    message: "<@" + userID + "> Sorry, that isn't a command. Please type `>help` for a list of commands."
+                    message: "<@" + userID + "> Sorry, that isn't a command. Please type `" + prefix + "help` for a list of commands."
 		        })
             break
          }
@@ -143,3 +143,9 @@ bot.on('message', async function (user, userID, channelID, message, evt)
 		})
 	 }
 });
+
+// init
+bot.setPresence({
+    idle_since: Date.now(),
+    game: "https://paypal.me/CloroSphere"
+})

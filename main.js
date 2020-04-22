@@ -96,10 +96,10 @@ bot.on('ready', async function (evt)
     logger.info(bot.username + ' - (' + bot.id + ')');
 });
 
-var isNuking = false
+var Prefix = "~"
 bot.on('message', async function (user, userID, channelID, message, evt) 
 {
-    if (message.substring(0, 1) == '>') 
+    if (message.substring(0, 1) == Prefix) 
     {
         var args = message.substring(1).split(' ');
         var cmd = args[0];
@@ -137,7 +137,7 @@ bot.on('message', async function (user, userID, channelID, message, evt)
      {
         bot.sendMessage({
             to: channelID,
-            message :"Hi there! Please type `>help` for a list of commands."
+            message :"Hi there! Please type `" + prefix + "help` for a list of commands."
 		})
 	 }
 });

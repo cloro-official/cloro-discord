@@ -134,7 +134,7 @@ bot.on('message', async function (user, userID, channelID, message, evt)
             default:
                 bot.sendMessage({
                     to: channelID,
-                    message: "<@" + userID + "> Sorry, that isn't a command. Please type `" + prefix + "help` for a list of commands."
+                    message: "<@" + userID + "> Sorry, that isn't a command. Please type `" + Prefix + "help` for a list of commands."
 		        })
             break
          }
@@ -143,7 +143,7 @@ bot.on('message', async function (user, userID, channelID, message, evt)
      {
         bot.sendMessage({
             to: channelID,
-            message :"Hi there! Please type `" + prefix + "help` for a list of commands."
+            message :"Hi there! Please type `" + Prefix + "help` for a list of commands."
 		})
 	 }
 });

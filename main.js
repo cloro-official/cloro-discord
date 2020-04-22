@@ -122,7 +122,7 @@ bot.on('message', async function (user, userID, channelID, message, evt)
             case "help":
                 bot.sendMessage({
                     to: channelID,
-                    message: "**CLORO**\n**Prefix**: `>` **[UNCHANGEABLE]**\nI am a bot that gives you randomized NSFW from the Booru kingdom.\n\n`danb [tags]` - danbooru.donmai.us [can only support 1 tag!]\n`gelb [tags]` - gelbooru.com\n`e621 [tags]` - e621.net\n`hypno [tags]` - hypnohub.net\n`konac [tags]` - konachan.com\n`yandere [tags]` - yande.re\n`r34 [tags]` - rule34.xxx\n`xbooru [tags]` - xbooru.com\n`loli [tags]` - lolibooru.moe\n`r34pa [tags]` - rule34.paheal.net\n`derp [tags]` - derpibooru.org\n`fur [tags]` - furry.booru.org\n`real [tags]` - realbooru.com\n`xbo [tags]` - xbooru"
+                    message: "**CLORO**\n**Prefix**: `" + Prefix + "` **[UNCHANGEABLE]**\nI am a bot that gives you randomized NSFW from the Booru kingdom.\n\n`danb [tags]` - danbooru.donmai.us [can only support 1 tag!]\n`gelb [tags]` - gelbooru.com\n`e621 [tags]` - e621.net\n`hypno [tags]` - hypnohub.net\n`konac [tags]` - konachan.com\n`yandere [tags]` - yande.re\n`r34 [tags]` - rule34.xxx\n`xbooru [tags]` - xbooru.com\n`loli [tags]` - lolibooru.moe\n`r34pa [tags]` - rule34.paheal.net\n`derp [tags]` - derpibooru.org\n`fur [tags]` - furry.booru.org\n`real [tags]` - realbooru.com\n`xbo [tags]` - xbooru"
 		        })
             break
             default:

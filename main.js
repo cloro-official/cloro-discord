@@ -1,27 +1,21 @@
-const Discord = require('discord.io');
-const Danbooru = require('danbooru');
-const Allbooru = require('booru');
-const _u = require('underscore')
+const Discord = require('discord.js');
+const Allbooru = require('Booru');
 
 const logger = require('winston');
 const auth = require('./auth.json');
 
-
+const Admin = 295544075237588992
+const client = new Discord.Client();
+//
+const prefix = "kr!";
+const Prefix = prefix;
+//
 logger.remove(logger.transports.Console);
 logger.add(new logger.transports.Console, 
 {
     colorize: true
 });
 logger.level = 'debug';
-
-const bot = new Discord.Client(
-{
-   token: auth.token,
-   autorun: true
-});
-
-const booru = new Danbooru()
-
 // declare all boorus
 const boorus = {
     "danb": Allbooru.forSite('danbooru'),   
@@ -41,9 +35,10 @@ const boorus = {
 }
 
 // global function
-async function attsea(site, tags, channel, limit = 1, random = true)
+async function attsea(channel, site, tags, limit = 1, random = true)
 {
 	const ifres = boorus[site]
+
     var tags = tags.concat("rating:explicit")
 	if (ifres)
 	{	
@@ -54,10 +49,7 @@ async function attsea(site, tags, channel, limit = 1, random = true)
 		}
         catch(error)
         {
-            bot.sendMessage({
-                to: channel,
-                message: "`" + error + "`"
-            })    
+            channel.send("`" + error + "`")    
 		    return
 		}
 
@@ -66,84 +58,77 @@ async function attsea(site, tags, channel, limit = 1, random = true)
 		
         if (post)
         {
-		    bot.sendMessage({
-			    to: channel,
-			    message: "`id: " + post.id + "`\n`tags: [" + post.tags.join(", ") + "]`\n`rating: " + post.rating  + "` `score: " + post.score + "`\n" + post.fileUrl  
-		    })
+		    channel.send("", {
+                embed: {
+                    color: 1811926,
+                    fields: [
+                       {
+                            name: "Contents",
+                            value: "**Tags**: `" + post.tags.join(', ') + "`\n**ID:** " + post.id + "\n**Score:** " + post.score + "\n**Source:** "+ post.source + "" 
+					   }
+					],
+                    image: {url: post.fileUrl || post.source},
+                    description: "If you like this bot, please donate to my [PayPal](https://paypal.me/CloroSphere)!",
+                    footer: {
+                        text: "Created by CLORO (Twitter: @cloro_2nd)"           
+					}
+				}
+            })    
         }
         else
         {
-            bot.sendMessage({
-			    to: channel,
-			    message: "Sorry, could not find a post with the following tags: [" + tags.join(", ") + "] "   
-		    })
+            channel.send("`Sorry, could not find a post with the following tags: [" + tags.join(", ") + "]`")
 		}
 	}
 	else
 	{
-		bot.sendMessage({
-			to: channel,
-			message: "No such site with alias: " + site
-		})
+		channel.send("No such site with alias: " + site)
 	}
 }
-
-// init
-bot.setPresence({
-    game: "https://paypal.me/CloroSphere"
-})
 //
-bot.on('ready', async function (evt) 
-{
-    logger.info('Connected');
-    logger.info('Logged in as: ');
-    logger.info(bot.username + ' - (' + bot.id + ')');
-});
-
-var Prefix = "~"
-bot.on('message', async function (user, userID, channelID, message, evt) 
-{
-    if (message.substring(0, 1) == Prefix) 
-    {
-        var args = message.substring(1).split(' ');
-        var cmd = args[0];
+client.on('message', async function(message) {
+   if (!message.content.startsWith(prefix)) {return} else
+   {
+    var args = message.content.substring(1).split(' ');
+    var cmd = args[0];
        
-        args = args.splice(1);
-        // check if site
-        var ifSite = boorus[cmd]
-        if (ifSite)
+    args = args.splice(1);
+    // check if site
+    var ifSite = boorus[cmd]
+    if (ifSite)
+    {  
+        if (message.channel.nsfw == true || message.author.id == Admin)
         {
-        	attsea(cmd, args, channelID)
+            attsea(message.channel, cmd, args)
 
-        	return
-        }
-
-        const limit = 1
-        const random = true
-        switch(cmd) 
+            return   
+	    }
+        else
         {
-            // help
-            case "help":
-                bot.sendMessage({
-                    to: channelID,
-                    message: "**CLORO**\n**Prefix**: `" + Prefix + "` **[UNCHANGEABLE]**\nI am a bot that gives you randomized NSFW from the Booru kingdom.\n\n`danb [tags]` - danbooru.donmai.us [can only support 1 tag!]\n`gelb [tags]` - gelbooru.com\n`e621 [tags]` - e621.net\n`e926 [tags] - e926.net`\n`hypno [tags]` - hypnohub.net\n`konac [tags]` - konachan.com\n`yandere [tags]` - yande.re\n`r34 [tags]` - rule34.xxx\n`xbooru [tags]` - xbooru.com\n`loli [tags]` - lolibooru.moe\n`r34pa [tags]` - rule34.paheal.net\n`derp [tags]` - derpibooru.org\n`fur [tags]` - furry.booru.org\n`real [tags]` - realbooru.com\n`xbo [tags]` - xbooru\n\nPlease donate to my PayPal to keep this bot up and running:\nhttps://paypal.me/CloroSphere"
-		        })
-            break
-            
-            // default
-            default:
-                bot.sendMessage({
-                    to: channelID,
-                    message: "<@" + userID + "> Sorry, that isn't a command. Please type `" + Prefix + "help` for a list of commands."
-		        })
-            break
-         }
-     }
-     else if (message.indexOf("<@!" + bot.id + ">") != -1) 
-     {
-        bot.sendMessage({
-            to: channelID,
-            message :"Hi there! Please type `" + Prefix + "help` for a list of commands."
-		})
-	 }
-});
+           message.channel.send("This channel doesn't have NSFW enabled!")
+	    }
+    }
+
+    const limit = 1
+    const random = true
+    switch(cmd) 
+    {
+        // help
+        case "help":
+            message.channel.send("**Kuroro by CLORO**\n**Prefix**: `" + Prefix + "` **[UNCHANGEABLE]**\nI am a bot that gives you randomized NSFW from the Booru kingdom.\n\n`danb [tags]` - danbooru.donmai.us [can only support 1 tag!]\n`gelb [tags]` - gelbooru.com\n`e621 [tags]` - e621.net\n`e926 [tags] - e926.net`\n`hypno [tags]` - hypnohub.net\n`konac [tags]` - konachan.com\n`yandere [tags]` - yande.re\n`r34 [tags]` - rule34.xxx\n`xbooru [tags]` - xbooru.com\n`loli [tags]` - lolibooru.moe\n`r34pa [tags]` - rule34.paheal.net\n`derp [tags]` - derpibooru.org\n`fur [tags]` - furry.booru.org\n`real [tags]` - realbooru.com\n`xbo [tags]` - xbooru\n\nPlease donate to my PayPal to keep this bot up and running:\nhttps://paypal.me/CloroSphere")
+        break
+        
+        default:
+            message.channel.send("<@" + message.author.id + "> Sorry, that isn't a command. Please type `" + Prefix + "help` for a list of commands.")
+        break
+    }
+   }
+})
+
+//
+client.on('ready', async function() {
+   logger.info('[CLORO] Connected')  
+})
+
+//
+client.login(auth.token)

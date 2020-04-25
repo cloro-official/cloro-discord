@@ -7,7 +7,7 @@ const auth = require('./auth.json');
 const Admin = 295544075237588992
 const client = new Discord.Client();
 //
-const prefix = "kr!";
+const prefix = "~";
 const Prefix = prefix;
 //
 logger.remove(logger.transports.Console);

@@ -5,7 +5,7 @@ const _u = require('underscore')
 
 const logger = require('winston');
 const auth = require('./auth.json');
-
+const display = require('./display.json');
 
 logger.remove(logger.transports.Console);
 logger.add(new logger.transports.Console, 

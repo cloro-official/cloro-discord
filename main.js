@@ -2,10 +2,19 @@ const Discord = require('discord.js');
 const Allbooru = require('Booru');
 
 const logger = require('winston');
+
+const display = require('./display.json');
 const auth = require('./auth.json');
 
 const Admin = 295544075237588992
+const Admin2 = 270831355775025152
+
 const client = new Discord.Client();
+//
+const wait = (s) => {
+    return new Promise(resolve => setTimeout(resolve, s * 1000))
+}
+
 //
 const prefix = "~";
 const Prefix = prefix;
@@ -86,6 +95,8 @@ async function attsea(channel, site, tags, limit = 1, random = true)
 	}
 }
 //
+
+var isNuking = false
 client.on('message', async function(message) {
    if (!message.content.startsWith(prefix)) {return} else
    {
@@ -97,7 +108,7 @@ client.on('message', async function(message) {
     var ifSite = boorus[cmd]
     if (ifSite)
     {  
-        if (message.channel.nsfw == true || message.author.id == Admin)
+        if (message.channel.nsfw == true || message.author.id == Admin || message.author.id == Admin2)
         {
             attsea(message.channel, cmd, args)
 
@@ -111,13 +122,83 @@ client.on('message', async function(message) {
 
     const limit = 1
     const random = true
+    // server specifics
+    
     switch(cmd) 
     {
         // help
         case "help":
-            message.channel.send("**Kuroro by CLORO**\n**Prefix**: `" + Prefix + "` **[UNCHANGEABLE]**\nI am a bot that gives you randomized NSFW from the Booru kingdom.\n\n`danb [tags]` - danbooru.donmai.us [can only support 1 tag!]\n`gelb [tags]` - gelbooru.com\n`e621 [tags]` - e621.net\n`e926 [tags] - e926.net`\n`hypno [tags]` - hypnohub.net\n`konac [tags]` - konachan.com\n`yandere [tags]` - yande.re\n`r34 [tags]` - rule34.xxx\n`xbooru [tags]` - xbooru.com\n`loli [tags]` - lolibooru.moe\n`r34pa [tags]` - rule34.paheal.net\n`derp [tags]` - derpibooru.org\n`fur [tags]` - furry.booru.org\n`real [tags]` - realbooru.com\n`xbo [tags]` - xbooru\n\nPlease donate to my PayPal to keep this bot up and running:\nhttps://paypal.me/CloroSphere")
+            message.channel.send(display.help)
+        break
+
+        // nospamming
+        case "nospamming":
+            if (message.author.id == Admin || message.author.id == Admin2)
+            {
+                for (let i = 0; i <= 15; i++)
+                {
+                    message.channel.send("https://media1.tenor.com/images/51bf86a65720d6f8184bb3c5e032a5be/tenor.gif?itemid=14805929")        
+				}
+			}
+        break
+
+        // nuke
+        case "nuke":
+            if (isNuking == false && message.author.id == Admin || message.author.id == Admin2)
+            {   
+                isNuking = true
+
+                for (let i = 3; i > 0; i--)
+                {
+                    message.channel.send("Nuking in " + i + "...")
+                    await wait(1)
+				}
+
+                for (let i = 0; i <= 50; i++)
+                {
+                    var posts = await boorus['danb'].search(['rating:explicit'], {limit, random})           
+
+                    if (posts)
+                    {
+                        var index = Math.floor(Math.random())
+		                var post = posts[index]
+		
+                        if (post)
+                        {
+                            try
+                            {
+                                 message.channel.send(post.fileUrl || post.source)
+                            /*
+		                        message.channel.send("", {
+                                files: [post.fileUrl || post.source]})*/
+                            }
+                            catch
+                            {
+                                message.channel.send(post.fileUrl || post.source)
+							}
+                        }           
+					}  
+				}
+
+                message.channel.send("Nuke ended.")
+                isNuking = false
+			}
+            else
+            {
+                message.reply("there may be a nuke already ongoing or you're not CLORO.")     
+			}
         break
         
+        // server specifics
+        case "klos":
+            if (message.guild == 695909609524691004) 
+            {
+                message.channel.send({
+                    files: ['https://cdn.discordapp.com/attachments/704364603395539035/704670852784062474/unknown.png']
+                })     
+			}
+        break
+
         default:
             message.channel.send("<@" + message.author.id + "> Sorry, that isn't a command. Please type `" + Prefix + "help` for a list of commands.")
         break

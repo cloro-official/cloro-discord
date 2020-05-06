@@ -94,6 +94,7 @@ client.on('message', async function(message) {
     if (!message.content.startsWith(prefix)) {
         return
     } else {
+        if (message.author.id == client.id) {return}
         var args = message.content.substring(1).split(' ');
         var cmd = args[0];
 
@@ -143,6 +144,19 @@ client.on('message', async function(message) {
                 }
                 break
 
+                // ospam
+            case "ospam":
+              if (message.guild == 695909609524691004 || message.author.id == Admin || message.author.id == Admin2) {
+                    if (args.length > 0) {
+                        for (let i = 0; i <= 10; i++) {
+                            let str = args.join(' ') + " "
+
+                            message.channel.send(str)
+                            await wait(.25)
+                        }
+                    }
+                }
+                break
                 // extract
             case "extract":
                 if (message.author.id == Admin || message.author.id == Admin2) {

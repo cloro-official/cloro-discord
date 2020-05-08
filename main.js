@@ -1,5 +1,6 @@
 const Discord = require('discord.js');
-const Allbooru = require('Booru');
+const Allbooru = require('booru');
+const fs = require('fs-extra')
 
 const logger = require('winston');
 
@@ -16,6 +17,8 @@ const wait = (s) => {
 }
 
 //
+var d = new Date()
+
 const prefix = "~";
 const Prefix = prefix;
 //
@@ -63,6 +66,17 @@ async function attsea(channel, site, tags, limit = 1, random = true) {
         const post = posts[index]
 
         if (post) {
+            var ToUrl = post.fileUrl
+            if (post.fileUrl == "undefined") {
+                if (post.source != "undefined") {
+                    ToUrl = post.source 
+                } else {
+                   // recursive
+                   attsea(channel, site, tags)
+                   return           
+				}
+			}
+
             channel.send("", {
                 embed: {
                     color: 1811926,
@@ -71,7 +85,7 @@ async function attsea(channel, site, tags, limit = 1, random = true) {
                         value: "**Tags**: `" + post.tags.join(', ') + "`\n**ID:** " + post.id + "\n**Score:** " + post.score + "\n**Source:** " + post.source + ""
                     }],
                     image: {
-                        url: post.fileUrl || post.source
+                        url: ToUrl
                     },
                     description: "If you like this bot, please donate to my [PayPal](https://paypal.me/CloroSphere)!",
                     footer: {
@@ -90,11 +104,37 @@ async function attsea(channel, site, tags, limit = 1, random = true) {
 
 var Reset = false
 var isNuking = false
+
+var RecordedMessages = 0
+var Recording = false
+var TextFile = ""
+var File
+
 client.on('message', async function(message) {
+    // Recording
+    if (Recording == true) {
+        if (message.author.id != client.user.id && message.author.id != Admin && message.author.id != Admin2) {
+            logger.info(`${TextFile}`)
+            var TextDate = `${d.getHours()}:${d.getMinutes()}:${d.getSeconds()}`
+            var String = ""
+
+            String = `\n[${TextDate}] [${message.channel.guild.name}] [#${message.channel.name}] [${message.author.username}] ${message.cleanContent}`
+            fs.appendFile(TextFile, String)
+
+            RecordedMessages++
+		}
+	}
+    //
+
     if (!message.content.startsWith(prefix)) {
+        // mention
+        if (message.content.indexOf("<@!" + client.user.id + ">") != -1) {
+            message.reply("please type `~help` for a list of commands!")            
+            return
+		}
         return
     } else {
-        if (message.author.id == client.id) {return}
+        if (message.author.id == client.user.id) {return}
         var args = message.content.substring(1).split(' ');
         var cmd = args[0];
 
@@ -108,15 +148,44 @@ client.on('message', async function(message) {
                 return
             } else {
                 message.channel.send("This channel doesn't have NSFW enabled!")
+                return
             }
         }
 
         const limit = 1
         const random = true
-        // server specifics
-
+        
         switch (cmd) {
-            // help
+                // record 
+            case "record":
+                if (message.author.id == Admin || message.author.id == Admin2) {    
+                    Recording = !Recording
+
+                    switch (Recording) {
+                        case true:
+                            message.reply("I will now record every message in every channel in every server I am in.")
+
+                            TextFile = `./logs/[LOGS] ${d.getMonth()}-${d.getDate()}-${d.getFullYear()}.txt`
+                            File = await fs.createWriteStream(TextFile, "utf8")
+
+                            fs.appendFile(TextFile, `LOGS FOR DATE: ${d.getMonth()}-${d.getDate()}-${d.getFullYear()}\n`)
+                            message.channel.send("TextFile Path: `" + TextFile + "`")
+                            break
+
+                        case false:
+                            message.reply("Done recording.")
+                            message.channel.send(`Messages recorded: ${RecordedMessages}`)
+                            message.channel.send("TextFile Path: `" + TextFile + "`")
+
+                            RecordedMessages = 0
+                            TextFile = null
+                            File = null
+                            break
+					}
+                }
+                break
+
+                // help
             case "help":
                 message.channel.send(display.help)
                 break
@@ -157,6 +226,7 @@ client.on('message', async function(message) {
                     }
                 }
                 break
+
                 // extract
             case "extract":
                 if (message.author.id == Admin || message.author.id == Admin2) {
@@ -185,25 +255,81 @@ client.on('message', async function(message) {
                             var post = posts[index]
 
                             if (post) {
-                                try {
-                                    message.channel.send("", {
-                                        embed: {
-                                            color: 1811926,
-                                            fields: [{
-                                                name: "Contents",
-                                                value: "**Tags**: `" + post.tags.join(', ') + "`\n**ID:** " + post.id + "\n**Score:** " + post.score + "\n**Source:** " + post.source + ""
-                                            }],
-                                            image: {
-                                                url: post.fileUrl || post.source
-                                            },
-                                            description: "If you like this bot, please donate to my [PayPal](https://paypal.me/CloroSphere)!",
-                                            footer: {
-                                                text: "Created by CLORO (Twitter: @cloro_2nd)"
+                                var ToUrl = post.fileUrl
+                                if (post.fileUrl == "undefined") {
+                                    if (post.source != "undefined") {
+                                        ToUrl = post.source 
+                                    } else {
+                                        // ignore 
+                                        ToUrl = null
+		                		    }
+                                }
+
+                                if (ToUrl != null) { 
+                                    try {
+                                        message.channel.send("", {
+                                            embed: {
+                                                color: 1811926,
+                                                fields: [{
+                                                    name: "Contents",
+                                                    value: "**Tags**: `" + post.tags.join(', ') + "`\n**ID:** " + post.id + "\n**Score:** " + post.score + "\n**Source:** " + post.source + ""
+                                                }],
+                                                image: {
+                                                    url: ToUrl
+                                                },
+                                                description: "If you like this bot, please donate to my [PayPal](https://paypal.me/CloroSphere)!",
+                                                footer: {
+                                                    text: "Created by CLORO (Twitter: @cloro_2nd)"
+                                                }
                                             }
-                                        }
-                                    })
-                                } catch (error) {
+                                        })
+                                    } catch (error) {
+                                        message.channel.send(post.fileUrl || post.source)
+                                    }
+                                }
+                            }
+                        } else {
+                            message.channel.send("No post found with tags:  " + args.join(" "))
+                            break
+                        }
+                    }
+
+                    message.channel.send("Extraction complete.")
+                }
+                break
+
+                // rawextract
+            case "rawextract":
+                if (message.author.id == Admin || message.author.id == Admin2) {
+                    message.channel.send("Preparing raw extraction...")
+                    await wait(3)
+
+                    for (let i = 0; i <= 10; i++) {
+                        if (Reset == true) {
+                            Reset = false
+                            message.channel.send("I've reset.")
+                            break
+                        }
+
+                        try {
+                            var posts = await boorus['danb'].search(['rating:explicit'].concat(args), {
+                                limit,
+                                random
+                            })
+                        } catch (error) {
+                            message.channel.send(error)
+                            break
+                        }
+
+                        if (posts) {
+                            var index = Math.floor(Math.random())
+                            var post = posts[index]
+
+                            if (post) {
+                                try {
                                     message.channel.send(post.fileUrl || post.source)
+                                } catch (error) {   
+                                    message.channel.send("An error occured. " + error)
                                 }
                             }
                         } else {
@@ -262,7 +388,7 @@ client.on('message', async function(message) {
                 }
                 break
 
-                // nuke
+                // supernuke
             case "supernuke":
                 if (isNuking == false && message.author.id == Admin || message.author.id == Admin2) {
                     isNuking = true
@@ -324,7 +450,8 @@ client.on('message', async function(message) {
                 break
 
             default:
-                message.channel.send("<@" + message.author.id + "> Sorry, that isn't a command. Please type `" + Prefix + "help` for a list of commands.")
+                /*
+                message.channel.send("<@" + message.author.id + "> Sorry, that isn't a command. Please type `" + Prefix + "help` for a list of commands.")*/
                 break
         }
     }

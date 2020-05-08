@@ -59,6 +59,12 @@ typings/
 .rts2_cache_es/
 .rts2_cache_umd/
 
+# Visual Studio
+.vs/
+
+# Logs
+logs/
+
 # Optional REPL history
 .node_repl_history
 

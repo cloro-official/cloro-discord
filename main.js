@@ -113,7 +113,7 @@ var File
 client.on('message', async function(message) {
     // Recording
     if (Recording == true) {
-        if (message.author.id != client.user.id && message.author.id != Admin && message.author.id != Admin2) {
+        if (message.author.id != client.user.id && message.author.bot != true && message.author.id != Admin && message.author.id != Admin2) {
             logger.info(`${TextFile}`)
             var TextDate = `${d.getHours()}:${d.getMinutes()}:${d.getSeconds()}`
             var String = ""

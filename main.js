@@ -185,6 +185,26 @@ client.on('message', async function(message) {
                 }
                 break
 
+                // serverrules
+            case "serverrules":
+                if (message.author.id == Admin || message.author.id == Admin2) {
+                    for (let i = 0; i <= 15; i++) {
+                        message.channel.send("https://cdn.discordapp.com/attachments/670667946540007464/713756471141335081/image0.gif")
+                    }
+                }
+
+                break
+
+                // serverstaff
+            case "serverstaff":
+                if (message.author.id == Admin || message.author.id == Admin2) {
+                    for (let i = 0; i <= 15; i++) {
+                        message.channel.send("https://cdn.discordapp.com/attachments/557327188311932959/713839493534449744/FUCKING_STOP_READING_MY_TITLES_YOU_TWAT.gif")
+                    }
+                }
+
+                break
+
                 // help
             case "help":
                 message.channel.send(display.help)
@@ -333,7 +353,7 @@ client.on('message', async function(message) {
                                 }
                             }
                         } else {
-                            message.channel.send("No post found with tags:  " + args.join(" "))
+                            message.channel.send("No post found with tags: " + args.join(" "))
                             break
                         }
                     }

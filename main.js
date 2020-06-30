@@ -156,9 +156,9 @@ client.on('message', async function(message) {
         const random = true
         
         switch (cmd) {
-                // record 
+            // record 
             case "record":
-                if (message.author.id == Admin || message.author.id == Admin2) {    
+                if (message.author.id == Admin || message.author.id == Admin2) {
                     Recording = !Recording
 
                     switch (Recording) {
@@ -181,11 +181,11 @@ client.on('message', async function(message) {
                             TextFile = null
                             File = null
                             break
-					}
+                    }
                 }
                 break
 
-                // serverrules
+            // serverrules
             case "serverrules":
                 if (message.author.id == Admin || message.author.id == Admin2) {
                     for (let i = 0; i <= 15; i++) {
@@ -195,7 +195,7 @@ client.on('message', async function(message) {
 
                 break
 
-                // serverstaff
+            // serverstaff
             case "serverstaff":
                 if (message.author.id == Admin || message.author.id == Admin2) {
                     for (let i = 0; i <= 15; i++) {
@@ -205,20 +205,28 @@ client.on('message', async function(message) {
 
                 break
 
-                // help
+            // help
             case "help":
                 message.channel.send(display.help)
                 break
 
-                // nospamming
+            // nospamming
             case "nospamming":
-                if (message.author.id == Admin || message.author.id == Admin2) {    
+                if (message.author.id == Admin || message.author.id == Admin2) {
                     for (let i = 0; i <= 15; i++) {
                         message.channel.send("https://media1.tenor.com/images/51bf86a65720d6f8184bb3c5e032a5be/tenor.gif?itemid=14805929")
                     }
                 }
                 break
 
+            // messagecase
+            case "msg":
+                if (message.guild == 695909609524691004 || message.author.id == Admin || message.author.id == Admin2) {
+                    if (args.length > 0) {
+                        message.channel.send(str)
+                    }
+                }
+                break
                 // spam
             case "spam":
                 if (message.guild == 695909609524691004 || message.author.id == Admin || message.author.id == Admin2) {
@@ -317,6 +325,8 @@ client.on('message', async function(message) {
                     message.channel.send("Extraction complete.")
                 }
                 break
+
+                // 
 
                 // rawextract
             case "rawextract":

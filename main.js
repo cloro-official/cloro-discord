@@ -221,15 +221,17 @@ client.on('message', async function(message) {
 
             // messagecase
             case "msg":
-                if (message.guild == 695909609524691004 || message.author.id == Admin || message.author.id == Admin2) {
+                if (message.author.id == Admin || message.author.id == Admin2) {
                     if (args.length > 0) {
+						let str = args.join(' ')
+						
                         message.channel.send(str)
                     }
                 }
                 break
                 // spam
             case "spam":
-                if (message.guild == 695909609524691004 || message.author.id == Admin || message.author.id == Admin2) {
+                if (message.author.id == Admin || message.author.id == Admin2) {
                     if (args.length > 0) {
                         for (let i = 0; i <= 10; i++) {
                             let str = args.join(' ') + " "
@@ -243,7 +245,7 @@ client.on('message', async function(message) {
 
                 // ospam
             case "ospam":
-              if (message.guild == 695909609524691004 || message.author.id == Admin || message.author.id == Admin2) {
+              if (message.author.id == Admin || message.author.id == Admin2) {
                     if (args.length > 0) {
                         for (let i = 0; i <= 10; i++) {
                             let str = args.join(' ') + " "

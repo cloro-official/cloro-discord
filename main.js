@@ -1,6 +1,7 @@
 ﻿const Discord = require('discord.js');
 const Allbooru = require('booru');
 const YoMama = require('yo-mamma').default;
+const Colrs = require('colors');
 const fs = require('fs-extra');
 
 const logger = require('winston');
@@ -123,12 +124,15 @@ async function attsea(channel, site, tags, limit = 1, random = true) {
 var Reset = false
 var isNuking = false
 var Tomaranai = false
+var LyricaLock = false
 var MessagesSent = 0
 
 var RecordedMessages = 0
 var Recording = false
 var TextFile = ""
 var File
+
+var SiniGANG = 728459950468104284;
 
 var Greetings = [
     "hi~",
@@ -144,7 +148,12 @@ var TomaranaiActivate = [
     "I can see whoever's feeling down deep in there eyes. I am here to cheer you up!"
 ]
 
+var lyricaID = 202650165549596672
 client.on('message', async function (message) {
+    if (LyricaLock == true) {
+        if (message.author.id == lyricaID) { message.delete(); return }
+    }
+
     if (message.channel.type == "dm") {
         if (message.author.id == client.user.id) { return }
         console.log(`Got DM from: ${message.author.username}#${message.author.discriminator} | ${message.author.id}\n${message.content}`)
@@ -168,6 +177,31 @@ client.on('message', async function (message) {
                 console.log("There was an error trying to record message.\n", error)
             }
 		}
+    }
+
+    // Lyrica Logger
+    if (message.guild && message.guild.id == SiniGANG) {
+        console.log("[LYRICA] ".brightGreen + ` [#${message.channel.name} (${message.channel.id})]`.green + ` ${message.author.username}:`.bold.yellow + ` ${message.content}`.bold.cyan + ` [User: ${message.author.id} | Message: ${message.id}]`.blue)
+
+        // Get all file attachments
+        if (message.attachments.size > 0) {
+            console.log("[LYRICA] ".brightGreen + " Got a message with attachments from User:".bold.green + ` ${message.author.username}`.bold.yellow + ` at `.green + `#${message.channel.name}`.bold.cyan )
+
+            // If image
+            message.attachments.every(attachment => {
+                let url = attachment.url
+
+                client.channels.cache.get("747053249466597417").send(`**----------\n[LYRICA] GOT ATTACHMENT FROM ${message.author.username} AT ${message.channel.name}:** ${message.content}\n**URL:** ||${url}||\n**DATA:** ||userid: ${message.author.id} messageid: ${message.id} channelid: ${message.channel.id}||`, { files: [url] })
+            })
+            
+        }
+    }
+
+    // if CLORO mentions
+    if (message.content.toLowerCase().indexOf("cloro") != -1 || message.content.toLowerCase().indexOf("kuroro") != -1 || message.content.toLowerCase().indexOf("xever") != -1) {
+        if (message.author.id != client.user.id) {
+            client.channels.cache.get("747310623058296844").send(`@everyone Someone mentioned CLORO!\n\nUser: **${message.author.username}** from \`#${message.channel.name} at ${message.guild.name}\`\nMessage: \`${message.content}\` \nData: ||userid: ${message.author.id} messageid: ${message.id} channelid: ${message.channel.id}||`)
+        }
     }
 
     // Tomaranai
@@ -320,7 +354,7 @@ client.on('message', async function (message) {
 
                     console.log(`${lolasinigang} if exist`)
                     if (lolasinigang) {
-                        let General = lolasinigang.channels.cache.find(general => general.name.indexOf("tagalog-chat") !== -1)
+                        let General = lolasinigang.channels.cache.find(general => general.name.indexOf("filipino-chat") !== -1)
 
                         wait(.1)
                         if (General) {
@@ -334,6 +368,19 @@ client.on('message', async function (message) {
                                 }
                             }
                         }
+                    }
+                }
+
+                break
+
+            case "lyricalock":
+                if (message.author.id == 202650165549596672 || message.author.id == Admin) {
+                    LyricaLock = !LyricaLock
+
+                    if (LyricaLock) {
+                        message.channel.send("Sorry <@202650165549596672>, I am locking you.")
+                    } else {
+                        message.channel.send("Behave <@202650165549596672>... smh.")
                     }
                 }
 
@@ -963,6 +1010,7 @@ client.on('message', async function (message) {
 //
 client.on('ready', async function () {
     console.log("Runtime created")
+    client.user.setActivity("possessed by CLORO")
 })
 
 //

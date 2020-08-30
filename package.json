@@ -5,6 +5,7 @@
   "main": "main.js",
   "author": "CLORO",
   "dependencies": {
+    "@discordjs/opus": "^0.3.2",
     "booru": "^2.2.3",
     "colors": "^1.4.0",
     "danbooru": "^2.0.3",

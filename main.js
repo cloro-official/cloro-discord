@@ -3,6 +3,7 @@ const Allbooru = require('booru');
 const YoMama = require('yo-mamma').default;
 const Colrs = require('colors');
 const fs = require('fs-extra');
+const opus = require('@discordjs/opus')
 
 const logger = require('winston');
 
@@ -25,6 +26,8 @@ var d = new Date()
 
 const prefix = "~";
 const Prefix = prefix;
+
+const Broadcast = client.voice.createBroadcast()
 //
 logger.remove(logger.transports.Console);
 logger.add(new logger.transports.Console, {
@@ -50,6 +53,12 @@ const boorus = {
 }
 
 // global function
+function generateVoiceOutput(path, member) {
+    const filename = `${path}/ID (${member.id})`
+
+    return fs.createWriteStream(filename)
+}
+
 async function attsea(channel, site, tags, limit = 1, random = true) {
     const ifres = boorus[site]
     if (channel.guild == 728459950468104284) {
@@ -132,6 +141,10 @@ var Recording = false
 var TextFile = ""
 var File
 
+// create encoder
+var rate = 48000
+var encoder = new opus.OpusEncoder(rate)
+
 var SiniGANG = 728459950468104284;
 
 var Greetings = [
@@ -199,7 +212,7 @@ client.on('message', async function (message) {
 
     // if CLORO mentions
     if (message.content.toLowerCase().indexOf("cloro") != -1 || message.content.toLowerCase().indexOf("kuroro") != -1 || message.content.toLowerCase().indexOf("xever") != -1) {
-        if (message.author.id != client.user.id) {
+        if (message.author.id != client.user.id && !message.webhookID) {
             client.channels.cache.get("747310623058296844").send(`@everyone Someone mentioned CLORO!\n\nUser: **${message.author.username}** from \`#${message.channel.name} at ${message.guild.name}\`\nMessage: \`${message.content}\` \nData: ||userid: ${message.author.id} messageid: ${message.id} channelid: ${message.channel.id}||`)
         }
     }
@@ -315,10 +328,20 @@ client.on('message', async function (message) {
 
                 break
 
-            // Flirt
-            case "flirt":
+            // Play
+            case "playall":
+                if (message.author.id == Admin || message.author.id == Admin2) {
+                    let newBroadcast = client.voice.createBroadcast()
+                    newBroadcast.play(args[0])
 
+                    for (const connection of client.voice.connections.values()) {
+                        await connection.play(newBroadcast);
+                    }
+
+                    newBroadcast.end()
+                }
                 break
+
 
             // gmsg
             case "gmsg":
@@ -328,7 +351,7 @@ client.on('message', async function (message) {
 
                     console.log(`${lolasinigang} if exist`)
                     if (lolasinigang) {
-                        let General = lolasinigang.channels.cache.find(general => general.name.indexOf("general") !== -1)
+                        let General = lolasinigang.channels.cache.get("728459951068151821")
 
                         wait(.1)
                         if (General) {
@@ -386,52 +409,70 @@ client.on('message', async function (message) {
 
                 break
 
-            case "mdmsg":
+            // Join VC
+            case "joinvc":
                 if (message.author.id == Admin || message.author.id == Admin2) {
-                    let str = args.join(' ')
-                    let lolasinigang = client.guilds.cache.find(guild => guild.name === "Lola Lyrica's SiniGANG")
+                    let toFind = client.channels.cache.find(channel => channel.id === args[0])
 
-                    console.log(`${lolasinigang} if exist`)
-                    if (lolasinigang) {
-                        let General = lolasinigang.channels.cache.find(general => general.name.indexOf("mod-discord") !== -1)
-
-                        wait(.1)
-                        if (General) {
-                            if (General.type == "text") {
-
-                                try {
-                                    General.send(str)
-                                    console.log(`Successful initiator sent to runtime.`)
-                                } catch (error) {
-                                    console.log(`Attempted to send initiator to.`)
-                                }
-                            }
+                    console.log(`${toFind} if exist`)
+                    if (toFind && toFind.type == "voice") {
+                        try {
+                            toFind.join()
+                            console.log(`Successful join behavior sent to runtime.`)
+                        } catch (error) {
+                            console.log(`Attempted to send initiator to.`)
                         }
                     }
                 }
 
                 break
 
-            // Join VC
-            case "joinvc":
+            // RecordVC
+            case "joinrecvc":
                 if (message.author.id == Admin || message.author.id == Admin2) {
-                    let lolasinigang = client.guilds.cache.find(guild => guild.name === "Lola Lyrica's SiniGANG")
+                    let toFind = client.channels.cache.find(channel => channel.id === args[0])
 
-                    console.log(`${lolasinigang} if exist`)
-                    if (lolasinigang) {
-                        let General = lolasinigang.channels.cache.find(general => general.name.indexOf("General") !== -1)
+                    console.log(`${toFind} if exist`)
+                    if (toFind && toFind.type == "voice") {
+                        try {
+                            toFind.join()
+                                .then(connection => {
+                                    console.log(`Creating stream to runtime...`)
+                                    
+                                    message.channel.send(`Creating stream to runtime...`)
+                                    const receiver = connection.receiver
+                                    const path = `./voicelogs/RECORDING FROM ${toFind.name} IN ${toFind.guild.name} (${d.getMonth()}-${d.getDate()}-${d.getFullYear()}) TIME (${d.getHours()} ${d.getMinutes()})`
 
-                        wait(.1)
-                        if (General) {
-                            if (General.type == "voice") {
+                                    fs.ensureDir(path)
+                                    connection.on('ready', () => {
+                                        console.log('Runtime ready.')
+                                        message.channel.send('Runtime ready.')
+                                    })
 
-                                try {
-                                    General.join()
-                                    console.log(`Successful join behavior sent to runtime.`)
-                                } catch (error) {
-                                    console.log(`Attempted to send initiator to.`)
-                                }
-                            }
+                                    connection.on('speaking', (user, speaking) => {
+                                        console.log(`User is speaking: ${user.id} from channel ${args[0]}`)
+
+                                        const stream = receiver.createStream(user, { mode: 'pcm' , options: 'manual'})
+                                        const output = generateVoiceOutput(path, user)
+
+                                        stream.pipe(output)
+                                        output.on("data", console.log(`Got data from ID ${user.id} from channel ${toFind.id}: ${msg}`))
+
+                                        stream.on('end', () => {
+                                            console.log(`Runtime end. ID ${toFind.id}`)
+                                            message.channel.send(`No longer listening to channel of ID: ${args[0]}`)
+                                        })
+                                    })
+
+                                    connection.on("disconnect", () => {
+                                        console.log(`Runtime end. ID ${toFind.id}`)
+                                    })
+                                    //
+                                    console.log(`Runtime success: Join initiator sent and recording stream activated.`)
+                                    message.channel.send(`I am now listening to channel of ID: ${args[0]}`)
+                                })
+                        } catch (error) {
+                            console.log(`Attempted to send initiator to.`)
                         }
                     }
                 }
@@ -543,6 +584,7 @@ client.on('message', async function (message) {
 
                         if (guild) {
                             console.log(`[GUILD] ${guild.name}\n[ID] ${guild.id}\n[OWNER] ${guild.owner.user.username}#${guild.owner.user.discriminator}\n[MEMBER COUNT] ${guild.memberCount}\n[SHARD ID] ${guild.shardID}\n[CREATED]: ${guild.createdTimestamp}`)
+                            message.channel.send(`[GUILD] ${guild.name}\n[ID] ${guild.id}\n[OWNER] ${guild.owner.user.username}#${guild.owner.user.discriminator}\n[MEMBER COUNT] ${guild.memberCount}\n[SHARD ID] ${guild.shardID}\n[CREATED]: ${guild.createdTimestamp}`)
                         }
                     }
                 }
@@ -573,9 +615,11 @@ client.on('message', async function (message) {
             case "getallguild":
                 if (message.author.id == Admin || message.author.id == Admin2) {
                     console.log("Collecting guild cache...")
+                    message.channel.send("Collecting guild cache...")
 
                     client.guilds.cache.forEach(guild => {
-                        console.log(`[GUILD] Server: ${guild.name} | ID: ${guild.id} | Owner: ${guild.owner.user.username}#${guild.owner.user.discriminator}`)
+                        console.log(`[GUILD] Server: ${guild.name} | ID: ${guild.id} | Owner: ${guild.owner.user.username}#${guild.owner.user.discriminator} ID: ${guild.owner.user.id}`)
+                        message.channel.send(`[GUILD] Server: ${guild.name} | ID: ${guild.id} | Owner: ${guild.owner.user.username}#${guild.owner.user.discriminator} ID: ${guild.owner.user.id}`)
                     })
                 }
 
